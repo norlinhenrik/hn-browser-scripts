@@ -1,0 +1,50 @@
+#!/bin/bash
+
+# Usage: ./vivaldi Name1 Name2
+
+# Will create (if missing) Profile_Name1 and Profile_Name2 and open a browser window for each profile.
+
+VIVALDI="/usr/bin/vivaldi"
+CONFIG_BASE="$HOME/.config/vivaldi"
+
+# --- Low-level function: run a single profile ---
+run_profile() {
+    local NAME="$1"
+    local PROFILE_NAME="Profile_$NAME"
+    local PROFILE_DIR="$CONFIG_BASE/$PROFILE_NAME"
+    local WM_CLASS="Vivaldi_$NAME"
+
+    # Create profile directory if missing
+    if [ ! -d "$PROFILE_DIR" ]; then
+        mkdir -p "$PROFILE_DIR"
+        echo "Created profile directory: $PROFILE_DIR"
+    fi
+
+    # Focus existing window if open
+    if wmctrl -x -a "$WM_CLASS"; then
+        echo "Focusing existing profile: $NAME"
+        return
+    fi
+
+    # Run Vivaldi with profile
+    echo "Starting profile: $NAME"
+    "$VIVALDI" --profile-directory="$PROFILE_NAME" --class="$WM_CLASS" >/dev/null 2>&1 &
+
+    # Optional: wait a moment so windows open in order
+    sleep 2
+}
+
+# --- High-level function: run multiple profiles ---
+run_multiple_profiles() {
+    for PROFILE in "$@"; do
+        run_profile "$PROFILE"
+    done
+}
+
+# --- Main ---
+if [ $# -eq 0 ]; then
+    echo "Usage: $0 Profile1 [Profile2 ...]"
+    exit 1
+fi
+
+run_multiple_profiles "$@"
