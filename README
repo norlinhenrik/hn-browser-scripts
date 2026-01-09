@@ -1,1 +1,5 @@
 I wanted to open multiple Vivaldi windows at once, and that's easy with the ´vivaldi´ script.
+
+After creating a .desktop file inside ~/.local/share/applications, run
+
+`update-desktop-database ~/.local/share/applications`
